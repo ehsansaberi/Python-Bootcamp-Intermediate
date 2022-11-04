@@ -1,0 +1,104 @@
+resources = {
+    "water": 1000,
+    "milk": 1000,
+    "coffee": 1000
+}
+
+cash = 10
+
+MENU = {
+    "espresso": {
+        "ingredient": {
+            "water": 50,
+            "milk": 0,
+            "coffee": 12
+        },
+        "cost": 1.5
+    },
+    "cappuccino": {
+        "ingredient": {
+            "water": 100,
+            "milk": 100,
+            "coffee": 12
+        },
+        "cost": 2.5
+    },
+    "latte": {
+        "ingredient": {
+            "water": 50,
+            "milk": 150,
+            "coffee": 10
+        },
+        "cost": 2.3
+    }
+}
+
+
+def greeting():
+    """Take client order"""
+    greet = input("Welcome to Candy Shop.\nWhat would like to drink? 'Espresso', 'latte' or 'Cappuccino'\n").lower()
+    return greet
+
+
+def report(source):
+    """Return the current available resources and budget"""
+    return f'Current resources: \nWater: {source["water"]}ml \nmilk: {source["milk"]}ml\n' \
+           f'coffee: {source["coffee"]}mg \nMoney: ${cash}'
+
+
+def sufficient_checker(beverage, sources):
+    """Check if the resources are enough to make order"""
+    for key in beverage:
+        if beverage[key] > sources[key]:
+            print(f'At moment we run out of ')
+            return False
+        else:
+            return True
+
+
+def coin_collector(fee):
+    """Give the order price and get the coins and check the amount """
+    print(f'your order costs ${fee}')
+    quarters = int(input("How many quarters do you insert? "))
+    dimes = int(input("How many dimes do you insert? "))
+    nickles = int(input("How many nickles do you insert? "))
+    pennies = int(input("How many pennies do you insert? "))
+    inserted_sum = .25 * quarters + .1 * dimes + .05 * nickles + .01 * pennies
+    if fee > inserted_sum:
+        print(f"Your order costs{fee} but you inserted {inserted_sum}. Please report order")
+        return False
+    elif fee == inserted_sum:
+        print("Enough coins are inserted.")
+        return True
+    else:
+        print(f" Here is your remaining. ${round(inserted_sum - fee, 1)}")
+        return True
+
+
+def coffee_maker(beverage_ingredient, source, fee):
+    """Make the item"""
+    for key in beverage_ingredient:
+        source[key] -= beverage_ingredient[key]
+    global cash
+    cash += fee
+
+
+turf_off = False
+while not turf_off:
+    order = greeting()
+    if order == "off":
+        turn_off = True
+        break
+    elif order == "report":
+        print(report(source=resources))
+    elif order == "espresso" or order == "latte" or order == "cappuccino":
+        print(report(source=resources))
+        drink = MENU[order]
+        drink_ingredient = MENU[order]["ingredient"]
+        drink_price = MENU[order]["cost"]
+        if sufficient_checker(beverage=drink_ingredient, sources=resources):
+            if coin_collector(fee=drink_price):
+                coffee_maker(beverage_ingredient=drink_ingredient, source=resources, fee=drink_price)
+                print(drink_price)
+                print(f"Here is your {drink}.\nEnjoy and have a good day")
+                print(report(source=resources))
