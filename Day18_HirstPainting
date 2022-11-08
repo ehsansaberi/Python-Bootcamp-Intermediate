@@ -1,0 +1,41 @@
+from random import choice
+from turtle import Turtle, Screen, colormode
+import colorgram
+
+colors = colorgram.extract('image.jpg', 18)
+
+rgb_colors = [color.rgb for color in colors]
+rgb = [(item[0], item[1], item[2]) for item in rgb_colors]
+
+colormode(255)
+artist = Turtle()
+artist.shape("circle")
+artist.speed(5)
+artist.penup()
+
+
+def stamp(art):
+    artist.fd(60)
+    art.color(choice(rgb_colors))
+    art.stamp()
+
+
+def returning(art):
+    art.left(90)
+    art.fd(60)
+    art.left(90)
+    art.fd(480)
+    art.right(180)
+    art.stamp()
+
+
+artist.goto(-250, -220)
+artist.stamp()
+for n in range(8):
+
+    for m in range(8):
+        stamp(artist)
+    returning(artist)
+
+screen = Screen()
+screen.exitonclick()
