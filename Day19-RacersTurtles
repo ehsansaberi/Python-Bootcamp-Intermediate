@@ -1,0 +1,31 @@
+from random import randint
+from turtle import *
+
+Y_POSITIONS = [0, 75, 150, 225, -75, -150, -225]
+COLORS = ["red", "blue", "yellow", "orange", "brown", "green", "black"]
+
+screen = Screen()
+user_guess = screen.textinput(prompt="Which turtle you think will win the game?", title=" Hello Dilbar")
+screen.screensize(canvwidth=800, canvheight=600)
+racers = []
+for n in range(len(COLORS)):
+    new_turtle = Turtle(shape="turtle")
+    new_turtle.color(COLORS[n])
+    new_turtle.penup()
+    new_turtle.speed("fast")
+    new_turtle.goto(x=-580, y=Y_POSITIONS[n])
+    racers.append(new_turtle)
+
+game_over = False
+while not game_over:
+    for item in racers:
+        if item.xcor() == 380:
+            game_over = Turtle
+            winner_color = item.color()[0]
+            if winner_color == user_guess:
+                print("Winner")
+            else:
+                print("Loser")
+        else:
+            item.fd(10 * randint(-2, 6))
+screen.exitonclick()
