@@ -1,0 +1,190 @@
+from turtle import Screen
+from snake_body import SnakeBody
+import time
+from ball import Ball
+from score_board import ScoreBoard, HighScore, GameOver
+
+SCREEN_SIZE = 500
+
+
+def create_screen(title, size, bg):
+    """create a board for the game with all properties"""
+    name = Screen()
+    name.bgcolor(bg)
+    name.screensize(canvheight=size, canvwidth=size)
+    name.listen()
+    name.title(title)
+    return name
+
+
+game_board = create_screen(title="Dilbar", size=SCREEN_SIZE, bg="black")
+game_board.tracer(0)
+ball = Ball()
+score_board = ScoreBoard()
+score_board.update_score()
+snake = SnakeBody()
+
+game_board.onkey(snake.up, key="Up")
+game_board.onkey(snake.down, key="Down")
+game_board.onkey(snake.right, key="Right")
+game_board.onkey(snake.left, key="Left")
+game_board.update()
+
+finish = False
+while not finish:
+    snake.move_forward()
+    game_board.update()
+    if snake.head.distance(ball) < 10:
+        ball.reset_position()
+        score_board.increase_score()
+        score_board.update_score()
+        snake.increase_segment()
+    if snake.head.xcor() > 290 or snake.head.xcor() < -290 or snake.head.ycor() > 270 or snake.head.ycor() < -270:
+        finish = True
+        high_score = HighScore()
+        if score_board.score > high_score.record:
+            high_score.record = score_board.score
+        game_over = GameOver()
+        high_score.show_high_score()
+    for segment in snake.segments_list:
+        if segment == snake.head:
+            pass
+        elif segment.distance(snake.head) < 10:
+            finish = True
+    ball = Ball()
+    time.sleep(.1)
+
+game_board.exitonclick()
+
+
+
+########################################            ball.py                       ######################################################
+from turtle import Turtle
+from random import randint
+
+
+class Ball(Turtle):
+    def __init__(self):
+        super().__init__()
+        self.shape("circle")
+        self.penup()
+        self.color("orange")
+        self.speed("fastest")
+        self.shapesize(stretch_wid=.75)
+        self.goto(x=200, y=200)
+        self.goto(x=randint(-12, 12) * 20, y=randint(-12, 11) * 20)
+
+    def reset_position(self):
+        self.goto(x=randint(-12, 12) * 20, y=randint(-12, 12) * 20)
+        
+        
+        
+ #######################################           snake_body.py             ##################################################
+ from turtle import Turtle
+
+POSITIONS = [(0, 0), (-20, 0), (-40, 0)]
+UP = 90
+DOWN = 270
+LEFT = 180
+RIGHT = 0
+
+
+class SnakeBody:
+
+    def __init__(self):
+        self.segments_list = []
+        self.create_snake()
+        self.head = self.segments_list[0]
+
+    def add_segment(self, position):
+        new_segment = Turtle(shape="square")
+        new_segment.color("white")
+        new_segment.penup()
+        new_segment.speed("fastest")
+        new_segment.goto(position)
+        self.segments_list.append(new_segment)
+
+    def create_snake(self):
+        for n in range(len(POSITIONS)):
+            self.add_segment(position=POSITIONS[n])
+
+    def increase_segment(self):
+        self.add_segment(position=self.segments_list[-1].position())
+
+    def move_forward(self):
+        for n in range(len(self.segments_list) - 1, 0, -1):
+            next_x = self.segments_list[n - 1].pos()
+            self.segments_list[n].goto(next_x)
+        self.head.fd(20)
+
+    def up(self):
+        if self.head.heading() != DOWN:
+            self.head.setheading(UP)
+
+    def down(self):
+        if self.head.heading() != UP:
+            self.head.setheading(DOWN)
+
+    def left(self):
+        if self.head.heading() != RIGHT:
+            self.head.setheading(LEFT)
+
+    def right(self):
+        if self.head.heading() != LEFT:
+            self.head.setheading(RIGHT)
+
+
+
+########################################           score_board.py               #########################################################
+from turtle import Turtle
+
+FONT = ("Arial", 14, "normal")
+FONT_GAME_OVER = ("Arial", 28, "bold")
+FONT_HIGH_SCORE = ("Arial", 20, "bold")
+ALIGN = "Center"
+POSITION_SCORE = (0, 250)
+POSITION_GAME_OVER = (0, -50)
+POSITION_HIGH_SCORE = (0, 50)
+
+
+class ScoreBoard(Turtle):
+
+    def __init__(self):
+        super().__init__()
+        self.score = 0
+        self.penup()
+        self.color("white")
+        self.goto(POSITION_SCORE)
+        self.hideturtle()
+
+    def update_score(self):
+        self.clear()
+        self.write(arg=f"Score : {self.score}", align=ALIGN, font=FONT)
+
+    def increase_score(self):
+        self.score += 1
+
+
+class GameOver(Turtle):
+    def __init__(self):
+        super().__init__()
+        self.penup()
+        self.color("Yellow")
+        self.goto(POSITION_GAME_OVER)
+        self.hideturtle()
+        self.write(arg=f"GAME OVER", align=ALIGN, font=FONT_GAME_OVER)
+
+
+class HighScore(Turtle):
+
+    def __init__(self):
+        super().__init__()
+        self.record = 0
+        self.penup()
+        self.color("yellow")
+        self.goto(POSITION_HIGH_SCORE)
+        self.hideturtle()
+
+    def show_high_score(self):
+        self.write(arg=f"Your Best : {self.record}", align=ALIGN, font=FONT_HIGH_SCORE)
+
