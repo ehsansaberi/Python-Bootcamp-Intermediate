@@ -1,0 +1,18 @@
+SUBSTITUTION = "[name]"
+
+with open(r"Input/Letters/starting_letter.docx") as invitation:
+    invitation_letter = invitation.read()
+    print(invitation_letter)
+
+with open(r"Input/Names/invited_names.txt") as guests:
+    guests_list = guests.readlines()
+    names = [item.strip() for item in guests_list]
+
+for name in names:
+    letter = invitation_letter.replace(SUBSTITUTION, name)
+    print(letter)
+    with open(f"Output/ReadyToSend/{name}.txt", mode="w") as ready_text:
+        ready_text.write(letter)
+
+
+
