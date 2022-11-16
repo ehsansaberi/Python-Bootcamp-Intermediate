@@ -1,0 +1,108 @@
+import turtle
+from turtle import Screen
+import pandas
+from score import Score
+from quiz_brain import Brain
+from statename import StateName, UnmentionedState
+
+df = pandas.read_csv("50_states.csv")
+all_states = df.state.to_list()
+print(all_states)
+
+image = "blank_states_img.gif"
+
+screen = Screen()
+screen.title("USA States Quiz")
+screen.addshape(image)
+
+turtle.shape(image)
+
+score = Score()
+
+brain = Brain(all_states)
+
+while score.score < 51:
+    user_guess = turtle.textinput(title=score.show_score(len(all_states)), prompt="Type the state name? ").title()
+    if user_guess == "Exit":
+        unmentioned = [item for item in all_states if item not in brain.correct_answers]
+        print(unmentioned)
+        for item in unmentioned:
+            unmentioned_state = UnmentionedState(item)
+            unmentioned_state_row = df[df.state == item]
+            unmentioned_state.writhe_name(x_cor=float(unmentioned_state_row.x), y_cor=float(unmentioned_state_row.y))
+
+        break
+
+    if brain.check_answer(user_guess):
+        score.increase()
+
+    state_name_display = StateName(user_guess)
+    state_row = df[df.state == user_guess]
+
+    state_name_display.writhe_name(x_cor=float(state_row.x), y_cor=float(state_row.y))
+
+###########################################################        statename.py                  #########################################################
+from turtle import Turtle
+
+FONT = ("Times", 12, "normal")
+
+
+class StateName(Turtle):
+
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
+        self.penup()
+        self.hideturtle()
+
+    def writhe_name(self, x_cor, y_cor):
+        self.goto(x=x_cor, y=y_cor)
+        self.write(arg=f"{self.name}", font=FONT)
+
+
+class UnmentionedState(Turtle):
+    def __init__(self, name):
+        super().__init__()
+        self.name = name
+        self.penup()
+        self.hideturtle()
+        self.color("red")
+
+    def writhe_name(self, x_cor, y_cor):
+        self.goto(x=x_cor, y=y_cor)
+        self.write(arg=f"{self.name}", font=FONT)
+        
+########################################################        score.py                             ################################################
+class Score:
+
+    def __init__(self):
+        """the amount of the states the user guessed correctly"""
+        self.score = 0
+
+    def increase(self):
+        """each time user guessed correctly, It will increase one"""
+        self.score += 1
+
+    def show_score(self, length):
+        """Show how many states out of 50 states in USA the user guess correctly"""
+        return f"{self.score}/{length} states correct"
+ 
+ ############################################################          quizbrain.py                  ##################################################
+ class Brain:
+
+    def __init__(self, states):
+        self.state_list = states
+        self.correct_answers = []
+
+    def check_answer(self, guess):
+        if guess in self.correct_answers:
+            print("already mentioned")
+            return False
+
+        if guess in self.state_list:
+            self.correct_answers.append(guess)
+            return guess
+        else:
+            print("Wrong")
+            return False
+
