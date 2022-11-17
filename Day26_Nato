@@ -1,0 +1,15 @@
+import pandas
+
+df = pandas.read_csv("nato_phonetic_alphabet.csv")
+nato_dict = {row.letter: row.code for (index, row) in df.iterrows()}
+
+word = input("What is the word to nato_raize?\n").upper()
+word_list = [char for char in word]
+
+result = [nato_dict[letter] for letter in word]
+print(result)
+
+# new_dict = {new_key:new_value for item in list}
+# new_dict = {new_key:new_value for (key:value) in dic.items()}
+# nato_dict = {row.letter: row.code for (index, row) in df.iterrows()}
+# for (index, row) in dt.iterrows():
