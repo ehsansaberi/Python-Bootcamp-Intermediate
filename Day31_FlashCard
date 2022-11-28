@@ -1,0 +1,85 @@
+import csv
+import json
+
+import pandas
+import pandas as pd
+from tkinter import *
+from random import choice
+
+after_id = None
+new_card = {}
+
+# -----------------------------------------------     CONSTANT     -----------------------------------------------------
+BACKGROUND_COLOR = "#B1DDC6"
+
+
+# ----------------------------------------------      CREATE WORDS BANK      -------------------------------------------
+def create_words_bank():
+    """create a bank of words based on the all the repeated words"""
+    with open("data/1000_German_word.csv") as data_file:
+        df = pd.read_csv(data_file)
+        return df.to_dict(orient="records")
+
+
+words = create_words_bank()
+
+
+# --------------------------------------------       NEXT CARD        --------------------------------------------------
+def next_card():
+    global new_card, flip_timer
+    window.after_cancel(flip_timer)
+    new_card = choice(words)
+    canvas.itemconfig(canvas_image, image=img_front)
+    canvas.itemconfig(title_text, text="German", fill="black")
+    canvas.itemconfig(word_text, text=new_card["German"], fill="black")
+    flip_timer = window.after(3000, flip_card)
+
+
+# --------------------------------------------       RIGHT BUTTON FUNCTION    ------------------------------------------
+def right_button_fun():
+    to_learn()
+    next_card()
+    canvas.itemconfig(canvas_image, image=img_front)
+    canvas.itemconfig(title_text, text="German", fill="black")
+    canvas.itemconfig(word_text, text=new_card["German"], fill="black")
+
+
+# ----------------------------------------------      CREATE TO LEARN FILE           ----------------------------------
+def to_learn():
+    words_to_learn = words.remove(new_card)
+
+    data = pandas.DataFrame(words_to_learn)
+    data.to_csv("data/words_to_learn")
+
+
+# --------------------------------------------    FLIP CARD     -------------------------------------------------------
+def flip_card():
+    canvas.itemconfig(canvas_image, image=img_back)
+    canvas.itemconfig(title_text, text="English", fill="white")
+    canvas.itemconfig(word_text, text=new_card["English"], fill="white")
+
+
+# --------------------------------------------        LAYOUT       -----------------------------------------------------
+window = Tk()
+window.title("My Flash Card")
+window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
+canvas = Canvas(width=800, height=526)
+img_front = PhotoImage(file="images/card_front.png")
+img_back = PhotoImage(file="images/card_back.png")
+canvas_image = canvas.create_image(400, 263, image=img_front, )
+canvas.config(highlightthickness=0, bg=BACKGROUND_COLOR)
+title_text = canvas.create_text(400, 150, text="", font=("Ariel", 40, "italic"), fill="black")
+word_text = canvas.create_text(400, 263, text="", font=("Ariel", 60, "italic"), fill="black")
+canvas.grid(column=0, columnspan=2, row=0)
+flip_timer = window.after(3000, flip_card)
+
+# ----------------------------------------------      Buttons       ----------------------------------------------------
+img_right = PhotoImage(file="images/right.png")
+img_wrong = PhotoImage(file="images/wrong.png")
+right_button = Button(image=img_right, command=right_button_fun)
+right_button.grid(column=0, row=1)
+wrong_button = Button(image=img_wrong, command=next_card)
+wrong_button.grid(column=1, row=1)
+next_card()
+
+window.mainloop()
