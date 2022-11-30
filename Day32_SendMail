@@ -1,0 +1,22 @@
+import smtplib
+import datetime as dt
+from random import choice
+
+MY_EMAIL = "ehsan.saberi@zohomail.eu"
+MY_PASSWORD = "Amorino@36Zoh"
+
+with open("quotes.txt", encoding="utf8") as text:
+    contents_list = text.readlines()
+
+current_day = dt.datetime.now().weekday()
+if current_day == 2:
+    quote = choice(contents_list).encode('utf-8')
+    with smtplib.SMTP("smtppro.zoho.eu", port=587) as connection:
+        connection.starttls()
+        connection.login(MY_EMAIL, MY_PASSWORD)
+        connection.sendmail(
+            from_addr=MY_EMAIL,
+            to_addrs=MY_EMAIL,
+            msg=f"Subject:Wednesday Motivation\n\n{quote}"
+        )
+        print("Everything is nice..")
