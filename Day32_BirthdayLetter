@@ -1,0 +1,34 @@
+import pandas as pd
+import datetime as dt
+from random import randint, choice
+import smtplib
+
+SUB = "[NAME]"
+MY_EMAIL = "ehsan.saberi@zohomail.eu"
+MY_PASSWORD = "Amorino@36Zoh"
+MAIL_SERVER_SMTP = "smtppro.zoho.eu"
+
+with open("bday_bank.csv") as file:
+    df = pd.read_csv(file)
+    today_month = dt.datetime.now().month
+    today_day = dt.datetime.now().day
+
+for index, row in df.iterrows():
+    if row.month == today_month and row.day == today_day:
+        bd_email = row.email
+        bd_name = row["name"]
+
+        with open(f"letter_templates/letter_{randint(1, 3)}.txt") as letter:
+            content = letter.read()
+            congratulation_letter = content.replace(SUB, bd_name)
+
+        with smtplib.SMTP(MAIL_SERVER_SMTP, port=587) as connection:
+            connection.starttls()
+
+            connection.login(MY_EMAIL, MY_PASSWORD)
+            connection.sendmail(
+                from_addr=MY_EMAIL,
+                to_addrs=bd_email,
+                msg=f"Subject:Happy Birthday {bd_name}\n\n{congratulation_letter}"
+            )
+            print("Everything is nice..")
